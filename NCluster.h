@@ -75,10 +75,10 @@ public:
     Node GetLastNode() const { return Nodes[this->N-1]; }
     Node GetParentOfLastNode() const { return Nodes[this->Nodes[this->N-1].ParentNode]; }
 
-    friend std::ostream& operator<< (std::ostream& stream, const NCluster& nCluster);
-
     /// debugging routine
-    //void Check
+    bool IsValidCluster();
+
+    friend std::ostream& operator<< (std::ostream& stream, const NCluster& nCluster);
 
 };
 
@@ -96,16 +96,22 @@ private:
 
     std::vector<std::vector<NCluster>> Clusters;
 
+public: /// for debugging only
     void AddCluster(const NCluster& cluster);
 
-    void IncrementCluster(const NCluster& jMinusOneCluster, std::vector<NCluster>& jCluster); /// from a single (j-1) cluster push resulting j clusters into the vector
+private:
+    void IncrementCluster(const NCluster& jMinusOneCluster); /// from a single (j-1) cluster push resulting j clusters into the vector
 
 public:
     ClusterManager(unsigned int nMax, AbstractLattice *lattice);
 
-    unsigned int Enumerate();
+    std::vector<unsigned int> Enumerate(bool debug=false);
 
     unsigned int GetNumberofJClusters(unsigned int j) { if (j>=this->NMax) throw std::invalid_argument("ClusterManager: asked for size of clusters greater than NMax!"); return this->Clusters[j].size(); }
+
+    /// debugging routines
+    bool AllValidClusters();
+    bool NoDoubleCounting();
 
 };
 

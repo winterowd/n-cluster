@@ -4,6 +4,7 @@
 #include "NCluster.h"
 #include "SquareLattice.h"
 #include "CubicLattice.h"
+#include "TriangularLattice.h"
 
 void BasicTests()
 {
@@ -58,55 +59,16 @@ void BasicTests()
 
 }
 
-void foo(const NCluster &cluster, std::vector<NCluster>& result, AbstractLattice *lattice)
-{
-    if (cluster.GetSize()==1)
-    {
-        for (auto nn=1; nn<=lattice->GetNbrNN(); ++nn)
-        {
-            Node tempNode{lattice->GetNearestNeighbor(cluster.GetLastNode().SiteIndex,nn), cluster.GetLastNode().SiteIndex, nn, 0};
-            if (tempNode>cluster.GetLastNode())
-                result.push_back(NCluster(cluster, tempNode));
-        }
-    }
-    else /// 2-cluster or larger
-    {
-        for (auto nn=cluster.GetLastNode().WhichNNToSite+1; nn<=lattice->GetNbrNN(); ++nn)
-        {
-            Node tempNode{lattice->GetNearestNeighbor(cluster.GetLastNode().ParentIndex,nn), cluster.GetLastNode().ParentIndex, nn, cluster.GetLastNode().ParentNode};
-            if (tempNode>cluster.GetParentOfLastNode())
-                result.push_back(NCluster(cluster, tempNode));
-        }
-
-        for (auto nn=1; nn<=lattice->GetNbrNN(); ++nn)
-        {
-            Node tempNode{lattice->GetNearestNeighbor(cluster.GetLastNode().SiteIndex,nn), cluster.GetLastNode().SiteIndex, nn, ((int) cluster.GetSize())-1};
-            if (tempNode>cluster.GetParentOfLastNode())
-                result.push_back(NCluster(cluster, tempNode));
-        }
-
-    }
-}
-
 int main()
 {
-    ///
-    BasicTests();
     SquareLattice MySquareLattice(100);
-    std::vector<std::vector<NCluster>> Clusters(10, std::vector<NCluster>(0,NCluster(0, &MySquareLattice)));
-
-    Clusters[0].push_back(NCluster(Node{MySquareLattice.GetSiteIndex(std::vector<unsigned int>{10,2,9}), -1, -1, -1}, 1, &MySquareLattice));
-
-    for (auto j=0; j<Clusters.size()-1; ++j)
-    {
-        for (auto i=0; i<Clusters[j].size(); ++i)
-            foo(Clusters[j][i], Clusters[j+1], &MySquareLattice);
-
-        //for (auto i=0; i<Clusters[j+1].size(); ++i)
-            //std::cout << Clusters[j+1][i];
-
-    }
-
-    for (auto j=1; j<Clusters.size(); ++j)
-        std::cout << "SIZE_" << j << "_CLUSTER: " << Clusters[j].size() << std::endl;
+    ClusterManager MyClusterManager(6, &MySquareLattice);
+    auto result = MyClusterManager.Enumerate();
+    for (auto i=0; i<result.size(); ++i)
+        std::cout << "SQUARE_TOTAL_" << i+1 << "_CLUSTERS: " << result[i] << std::endl;
+    TriangularLattice MyTriangularLattice(100);
+    ClusterManager MyClusterManager2(6, &MyTriangularLattice);
+    result = MyClusterManager.Enumerate();
+    for (auto i=0; i<result.size(); ++i)
+        std::cout << "TRIANGULAR_TOTAL_" << i+1 << "_CLUSTERS: " << result[i] << std::endl;
 }

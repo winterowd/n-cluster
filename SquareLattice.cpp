@@ -36,7 +36,7 @@ int SquareLattice::GetNearestNeighbor(int siteIndex, int nnIndex)
         temp[1] = (temp[1]+this->N-1)%this->N;
         break;
      default:
-        throw std::invalid_argument("Invalid nearest neighbor index for CubicLattice!");
+        throw std::invalid_argument("Invalid nearest neighbor index for SquareLattice!");
     }
     return this->GetSiteIndex(temp);
 }
